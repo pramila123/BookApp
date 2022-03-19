@@ -1,6 +1,7 @@
 const initialValues = {
   books: [],
   book: {},
+  editMode: false,
 };
 
 export const bookItems = (state = initialValues, action) => {
@@ -18,14 +19,18 @@ export const bookItems = (state = initialValues, action) => {
         ],
       };
     case "Update":
-      return {
-        ...state,
-        books: state.books.map((bid, index) => {
-          if (index === action.payload) {
-            return { ...state, books: [...state.books, action.payload] };
-          }
-        }),
-      };
+      const bookId = state.books.find(
+        (item, index) => index === action.payload
+      );
+      if (bookId) {
+        return {
+          ...state,
+          books: [...state.books, action.payload],
+        };
+      } else {
+        return state;
+      }
+
     default:
       return state;
   }

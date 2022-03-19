@@ -31,16 +31,16 @@ const DialogContainer = styled.div`
   }
 `;
 const AddBook = () => {
-  const [open, setopen] = useState(false);
+  const { books, editMode } = useSelector((state) => state.bookItems);
+  const [open, setopen] = useState(editMode);
   const handleClose = () => {
     setopen(false);
   };
-const {books}=useSelector(state=>state.bookItems)
-const dispatch=useDispatch();
+
+  const dispatch = useDispatch();
 
   const formik = useFormik({
     initialValues: {
-  
       title: "",
       author: "",
       price: "",
@@ -53,14 +53,22 @@ const dispatch=useDispatch();
         .required("Price Required !"),
     }),
     onSubmit: (values) => {
-      
-dispatch({
-  type:"ADD_BOOK",
-  payload:values
-})
+      if (editMode) {
+        dispatch({
+          type: "Update",
+          payload: values,
+        });
+      } else {
+        dispatch({
+          type: "ADD_BOOK",
+          payload: values,
+        });
+      }
       formik.resetForm();
     },
   });
+  const buttonTitle = editMode ? "Update Book" : "Add Book";
+  const pageTitle = editMode ? "Update Book" : "Add Book";
   return (
     <>
       <BookContainer>
@@ -88,7 +96,7 @@ dispatch({
         }}
       >
         <DialogContainer>
-          <h3>Add Book</h3>
+          <h3>{pageTitle}</h3>
 
           <Grid container spacing={2} pt={2}>
             <Grid item xs={12}>
@@ -96,11 +104,11 @@ dispatch({
                 control="textfield"
                 label="Title"
                 name="title"
+                value={formik.values.title}
                 {...formik.getFieldProps("title")}
               />
             </Grid>
             <div className="errors">
-              
               {formik.touched.title ? formik.errors.title : ""}{" "}
             </div>
             <Grid item xs={12}>
@@ -108,6 +116,7 @@ dispatch({
                 control="textfield"
                 label="Author"
                 name="author"
+                value={formik.values.author}
                 {...formik.getFieldProps("author")}
               />
             </Grid>
@@ -120,6 +129,7 @@ dispatch({
                 control="textfield"
                 label="Price"
                 name="price"
+                value={formik.values.price}
                 {...formik.getFieldProps("price")}
               />
             </Grid>
@@ -133,7 +143,7 @@ dispatch({
                 variant="contained"
                 onClick={formik.handleSubmit}
               >
-                Submit
+                {buttonTitle}
               </Button>
             </Grid>
           </Grid>
